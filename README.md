@@ -15,7 +15,10 @@ pnpm dev
 bun dev
 ```
 
-브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 결과를 확인할 수 있습니다.
+## 실행 및 접속
+
+- 로컬 개발: 서버 실행 후 브라우저에서 http://localhost:3000
+- 프로덕션(배포): https://hobbyfind-1uz0eu3fe-leegahees-projects.vercel.app/
 
 `app/page.tsx` 파일을 수정하여 페이지를 편집할 수 있습니다. 파일을 수정하면 자동으로 페이지가 업데이트됩니다.
 
