@@ -1,3 +1,6 @@
+import AdSense from '@/third-parties/AdSense';
+import { ChannelIO } from '@/third-parties/Channelio';
+import Clarity from '@/third-parties/Clarity';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -26,7 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning>
+      <ChannelIO />
       <body className={`${inter.variable} font-sans antialiased`}>
+    <AdSense />
+    <Clarity />
         <Providers>
           <AuthProvider>
             <div className="flex flex-col min-h-screen">

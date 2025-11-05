@@ -142,10 +142,20 @@ export async function authenticateUser(
  * Ensure a user exists for OAuth providers. Since our schema requires a password hash,
  * we generate a random hash when creating an account via social login.
  */
-export async function ensureOAuthUser(email: string, name?: string | null): Promise<User | null> {
+export async function ensureOAuthUser(
+  emailOrNull: string | null | undefined,
+  name?: string | null,
+  provider?: string | null,
+  providerId?: string | number | null,
+  imageUrl?: string | null
+): Promise<User | null> {
   try {
     const supabase = await createPureClient();
-
+    const email = emailOrNull ?? (provider && providerId ? `${provider}-${providerId}@oauth.local` : null);
+    if (!email) {
+      console.error('ensureOAuthUser: cannot derive email');
+      return null;
+    }
     // Check if user exists
     const { data: existing, error: checkError } = await supabase
       .from('users')
@@ -165,7 +175,7 @@ export async function ensureOAuthUser(email: string, name?: string | null): Prom
 
     const { data: created, error } = await supabase
       .from('users')
-      .insert({ email, name: name ?? undefined, password_hash: passwordHash })
+      .insert({ email, name: name ?? undefined, password_hash: passwordHash, provider: provider ?? undefined, image: imageUrl ?? undefined })
       .select('id, email, name, created_at')
       .single();
 

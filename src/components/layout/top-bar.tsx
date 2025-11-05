@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { CATEGORIES, type CategoryType } from '@/constants/hobbies';
 import { useSession, signOut } from 'next-auth/react';
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export function TopBar() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const hideCategories = pathname === '/signup' || pathname === '/login';
 
   useEffect(() => {
     console.log('🔍 Session status:', status);
@@ -22,17 +25,19 @@ export function TopBar() {
             HobbyFind
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
-            {Object.entries(CATEGORIES).map(([key, label]) => (
-              <Link
-                key={key}
-                href={`/category/${key}`}
-                className="text-gray-900 hover:text-brand-primary transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+          {!hideCategories && (
+            <nav className="hidden md:flex items-center gap-6">
+              {Object.entries(CATEGORIES).map(([key, label]) => (
+                <Link
+                  key={key}
+                  href={`/category/${key}`}
+                  className="text-gray-900 hover:text-brand-primary transition-colors"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           <div className="flex items-center gap-3">
             {session ? (
@@ -72,17 +77,19 @@ export function TopBar() {
           </div>
         </div>
 
-        <nav className="md:hidden flex items-center gap-4 pb-3 overflow-x-auto">
-          {Object.entries(CATEGORIES).map(([key, label]) => (
-            <Link
-              key={key}
-              href={`/category/${key}`}
-              className="text-sm text-gray-900 hover:text-brand-primary whitespace-nowrap transition-colors"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        {!hideCategories && (
+          <nav className="md:hidden flex items-center gap-4 pb-3 overflow-x-auto">
+            {Object.entries(CATEGORIES).map(([key, label]) => (
+              <Link
+                key={key}
+                href={`/category/${key}`}
+                className="text-sm text-gray-900 hover:text-brand-primary whitespace-nowrap transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </div>
     </header>
   );

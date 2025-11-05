@@ -1,7 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { User, Mail, Calendar, Heart } from 'lucide-react';
+import { User, Mail, Heart } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CATEGORIES, type CategoryType } from '@/constants/hobbies';
 
 interface UserProfileProps {
   name?: string | null;
@@ -11,6 +13,18 @@ interface UserProfileProps {
 
 export function UserProfile({ name, email, bookmarkCount }: UserProfileProps) {
   const displayName = name || email?.split('@')[0] || '사용자';
+  const [lastResult, setLastResult] = useState<{ result_type: CategoryType } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/test-result');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.result) setLastResult(data.result);
+      } catch {}
+    })();
+  }, []);
 
   return (
     <motion.div
@@ -48,7 +62,7 @@ export function UserProfile({ name, email, bookmarkCount }: UserProfileProps) {
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <User className="w-5 h-5 text-gray-500" />
               <div>
-                <p className="text-xs text-gray-500">이름</p>
+                <p className="text-xs text-gray-500">닉네임</p>
                 <p className="text-sm text-gray-900 font-medium">{name}</p>
               </div>
             </div>
@@ -71,11 +85,9 @@ export function UserProfile({ name, email, bookmarkCount }: UserProfileProps) {
               <p className="text-xs text-gray-500 mt-1">저장한 취미</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-success">
-                {bookmarkCount > 0 ? '활동중' : '시작'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {bookmarkCount > 0 ? '활발히 탐색중' : '취미 탐색하기'}
+              <p className="text-xs text-gray-500">마지막 유형 테스트</p>
+              <p className="text-lg font-semibold mt-1">
+                {lastResult ? CATEGORIES[lastResult.result_type] : '기록 없음'}
               </p>
             </div>
           </div>

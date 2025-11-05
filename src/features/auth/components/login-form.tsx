@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
@@ -15,11 +16,23 @@ export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  // Load remembered email on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hobbyfind.rememberedEmail');
+      if (saved) {
+        setFormData((prev) => ({ ...prev, email: saved }));
+        setRememberMe(true);
+      }
+    } catch {}
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +58,15 @@ export function LoginForm() {
         title: '로그인 성공',
         description: '환영합니다!',
       });
+
+      // persist or clear email based on rememberMe
+      try {
+        if (rememberMe) {
+          localStorage.setItem('hobbyfind.rememberedEmail', formData.email);
+        } else {
+          localStorage.removeItem('hobbyfind.rememberedEmail');
+        }
+      } catch {}
 
       router.push('/');
       router.refresh();
@@ -94,6 +116,18 @@ export function LoginForm() {
             placeholder="example@email.com"
           />
         </div>
+        
+        {/* 이메일 저장 체크박스 - 이메일 입력 바로 아래 */}
+        <div className="flex items-center gap-2 -mt-1 mb-2">
+          <Checkbox
+            id="remember"
+            checked={rememberMe}
+            onCheckedChange={(c) => setRememberMe(Boolean(c))}
+          />
+          <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
+            이메일 저장
+          </Label>
+        </div>
 
         <div>
           <Label htmlFor="password" className="text-gray-900">
@@ -135,23 +169,7 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-gray-200" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-400">또는</span>
-        </div>
-      </div>
-
-      <Button
-        onClick={() => signIn('kakao', { callbackUrl: '/' })}
-        variant="outline"
-        className="w-full border-2 border-yellow-300 hover:bg-yellow-50 flex items-center justify-center gap-2 py-3"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="#181600"><path d="M12 3C6.48 3 2 6.477 2 10.77c0 2.86 2.02 5.355 5.04 6.73-.16.59-.58 2.13-.66 2.46-.1.41.15.81.57.58.3-.17 1.94-1.28 2.74-1.82.73.11 1.48.17 2.25.17 5.52 0 10-3.477 10-7.77C24 6.477 19.52 3 14 3h-2z"/></svg>
-        카카오로 계속하기
-      </Button>
+      {/* SNS 로그인 제거됨 */}
 
       <div className="text-center text-gray-500 text-sm mt-4">
         계정이 없으신가요?{' '}

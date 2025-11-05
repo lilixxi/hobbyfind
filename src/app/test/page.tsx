@@ -8,9 +8,11 @@ import { ProgressBar } from '@/features/test/components/progress-bar';
 import { QuestionCard } from '@/features/test/components/question-card';
 import { ResultCard } from '@/features/test/components/result-card';
 import { TEST_INFO, TEST_QUESTIONS, TEST_RESULTS } from '@/constants/test-data';
+import { useSession } from 'next-auth/react';
 import { CategoryType } from '@/constants/hobbies';
 
 export default function TestPage() {
+  const { data: session } = useSession();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(TEST_QUESTIONS.length).fill(null)
@@ -44,7 +46,7 @@ export default function TestPage() {
     }
   };
 
-  const calculateResult = () => {
+  const calculateResult = async () => {
     const scores: Record<CategoryType, number> = {
       sports: 0,
       intelligence: 0,
@@ -68,6 +70,18 @@ export default function TestPage() {
       }
     });
 
+    // persist if logged in
+    if (session?.user?.id) {
+      try {
+        await fetch('/api/test-result', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resultType }),
+        });
+      } catch (e) {
+        // ignore
+      }
+    }
     setShowResult(true);
   };
 
