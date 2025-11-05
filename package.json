@@ -40,6 +40,7 @@
     "react-use": "^17",
     "server-only": "0.0.1",
     "ts-pattern": "^5",
+    "vercel": "^48.8.2",
     "zod": "^3",
     "zustand": "^4"
   },

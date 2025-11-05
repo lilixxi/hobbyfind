@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -346,6 +347,24 @@ export function SignUpForm() {
           {isLoading ? '회원가입 중...' : '회원가입'}
         </Button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-gray-400">또는</span>
+        </div>
+      </div>
+
+      <Button
+        onClick={() => signIn('kakao', { callbackUrl: '/' })}
+        variant="outline"
+        className="w-full border-2 border-yellow-300 hover:bg-yellow-50 flex items-center justify-center gap-2 py-3"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="#181600"><path d="M12 3C6.48 3 2 6.477 2 10.77c0 2.86 2.02 5.355 5.04 6.73-.16.59-.58 2.13-.66 2.46-.1.41.15.81.57.58.3-.17 1.94-1.28 2.74-1.82.73.11 1.48.17 2.25.17 5.52 0 10-3.477 10-7.77C24 6.477 19.52 3 14 3h-2z"/></svg>
+        카카오로 간편 가입
+      </Button>
 
       <div className="text-center text-gray-500 text-sm mt-4">
         이미 계정이 있으신가요?{' '}

@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import KakaoProvider from "next-auth/providers/kakao";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { authenticateUser } from "./auth-utils";
+import { authenticateUser, ensureOAuthUser } from "./auth-utils";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -44,6 +44,19 @@ export const authOptions: NextAuthOptions = {
     error: "/login",
   },
   callbacks: {
+    async signIn({ account, profile }) {
+      // Create user in Supabase for OAuth logins if not exists
+      if (account && account.provider === 'kakao') {
+        const email = (profile as any)?.kakao_account?.email || (profile as any)?.email;
+        const name = (profile as any)?.properties?.nickname || (profile as any)?.name;
+        if (!email) {
+          // Kakao 이메일 수집이 꺼져있다면 회원가입 진행 불가
+          return false;
+        }
+        await ensureOAuthUser(email, name);
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.sub as string;

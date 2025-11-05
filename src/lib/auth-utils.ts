@@ -138,3 +138,46 @@ export async function authenticateUser(
   }
 }
 
+/**
+ * Ensure a user exists for OAuth providers. Since our schema requires a password hash,
+ * we generate a random hash when creating an account via social login.
+ */
+export async function ensureOAuthUser(email: string, name?: string | null): Promise<User | null> {
+  try {
+    const supabase = await createPureClient();
+
+    // Check if user exists
+    const { data: existing, error: checkError } = await supabase
+      .from('users')
+      .select('id, email, name, created_at')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Error checking OAuth user:', checkError);
+    }
+
+    if (existing) return existing;
+
+    // Create with a random password hash to satisfy NOT NULL constraint
+    const randomSecret = `${email}:${Date.now()}:${Math.random()}`;
+    const passwordHash = await hashPassword(randomSecret);
+
+    const { data: created, error } = await supabase
+      .from('users')
+      .insert({ email, name: name ?? undefined, password_hash: passwordHash })
+      .select('id, email, name, created_at')
+      .single();
+
+    if (error) {
+      console.error('Error creating OAuth user:', error);
+      return null;
+    }
+
+    return created;
+  } catch (e) {
+    console.error('ensureOAuthUser error:', e);
+    return null;
+  }
+}
+
